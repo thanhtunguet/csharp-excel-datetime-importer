@@ -1,6 +1,10 @@
 using ExcelDateImporter.Api.Data;
 using ExcelDateImporter.Api.Services;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+
+// Set EPPlus license for version 8+
+ExcelPackage.License = LicenseContext.NonCommercial;
 
 var builder = WebApplication.CreateBuilder(args);
 
