@@ -1,5 +1,5 @@
 using ExcelDateImporter.Api.Models;
-using OfficeOpenXml;
+using ClosedXML.Excel;
 using System.Globalization;
 
 namespace ExcelDateImporter.Api.Services
@@ -28,22 +28,21 @@ namespace ExcelDateImporter.Api.Services
             using var stream = new MemoryStream();
             await file.CopyToAsync(stream);
             
-            ExcelPackage.License = LicenseContext.NonCommercial;
+            using var workbook = new XLWorkbook(stream);
+            var worksheet = workbook.Worksheet(1);
             
-            using var package = new ExcelPackage(stream);
-            var worksheet = package.Workbook.Worksheets[0];
-            
-            var rowCount = worksheet.Dimension?.Rows ?? 0;
-            var colCount = worksheet.Dimension?.Columns ?? 0;
+            var usedRange = worksheet.RangeUsed();
+            if (usedRange == null)
+                return results;
 
-            for (int row = 1; row <= rowCount; row++)
+            for (int row = usedRange.FirstRow().RowNumber(); row <= usedRange.LastRow().RowNumber(); row++)
             {
-                for (int col = 1; col <= colCount; col++)
+                for (int col = usedRange.FirstColumn().ColumnNumber(); col <= usedRange.LastColumn().ColumnNumber(); col++)
                 {
-                    var cellValue = worksheet.Cells[row, col].Value;
-                    if (cellValue != null)
+                    var cell = worksheet.Cell(row, col);
+                    if (!cell.IsEmpty())
                     {
-                        var entry = ParseDateValue(cellValue);
+                        var entry = ParseDateValue(cell.Value);
                         results.Add(entry);
                     }
                 }
@@ -121,8 +120,8 @@ namespace ExcelDateImporter.Api.Services
         public string GetCSharpCodeExample()
         {
             return @"
-// C# Code for Excel Date Processing
-using OfficeOpenXml;
+// C# Code for Excel Date Processing using ClosedXML (Free & Open Source)
+using ClosedXML.Excel;
 using System.Globalization;
 
 public class ExcelDateParser
@@ -179,24 +178,30 @@ public class ExcelDateParser
     }
 }
 
-// Usage Example:
+// Usage Example with ClosedXML:
 var parser = new ExcelDateParser();
-var excelFile = new FileInfo(""sample.xlsx"");
 
-using var package = new ExcelPackage(excelFile);
-var worksheet = package.Workbook.Worksheets[0];
+using var workbook = new XLWorkbook(""sample.xlsx"");
+var worksheet = workbook.Worksheet(1);
+var usedRange = worksheet.RangeUsed();
 
-for (int row = 1; row <= worksheet.Dimension.Rows; row++)
+if (usedRange != null)
 {
-    for (int col = 1; col <= worksheet.Dimension.Columns; col++)
+    for (int row = usedRange.FirstRow().RowNumber(); row <= usedRange.LastRow().RowNumber(); row++)
     {
-        var cellValue = worksheet.Cells[row, col].Value;
-        var parsedDate = parser.ParseExcelDate(cellValue);
-        
-        if (parsedDate.HasValue)
-            Console.WriteLine($""Parsed: {parsedDate.Value:yyyy-MM-dd}"");
-        else
-            Console.WriteLine($""Could not parse: {cellValue}"");
+        for (int col = usedRange.FirstColumn().ColumnNumber(); col <= usedRange.LastColumn().ColumnNumber(); col++)
+        {
+            var cell = worksheet.Cell(row, col);
+            if (!cell.IsEmpty())
+            {
+                var parsedDate = parser.ParseExcelDate(cell.Value);
+                
+                if (parsedDate.HasValue)
+                    Console.WriteLine($""Parsed: {parsedDate.Value:yyyy-MM-dd}"");
+                else
+                    Console.WriteLine($""Could not parse: {cell.Value}"");
+            }
+        }
     }
 }";
         }
