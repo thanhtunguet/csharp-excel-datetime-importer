@@ -1,0 +1,10 @@
+services:
+  backend:
+    image: thanhtunguet/excel-date-importer-backend:latest
+    ports:
+      - "5003:80"
+
+  frontend:
+    image: thanhtunguet/excel-date-importer-frontend:latest
+    ports:
+      - "5004:80"

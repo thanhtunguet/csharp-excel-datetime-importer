@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Upload, Card, Table, message, Button, Divider } from 'antd';
-import { InboxOutlined } from '@ant-design/icons';
-import Editor from '@monaco-editor/react';
-import axios from 'axios';
-import type { UploadProps } from 'antd';
+import React, { useState } from "react";
+import { Upload, Card, Table, message, Button, Divider } from "antd";
+import { InboxOutlined } from "@ant-design/icons";
+import Editor from "@monaco-editor/react";
+import axios from "axios";
+import type { UploadProps } from "antd";
 
 const { Dragger } = Upload;
 
@@ -20,17 +20,20 @@ interface ExcelDateEntry {
 function App() {
   const [parsedData, setParsedData] = useState<ExcelDateEntry[]>([]);
   const [loading, setLoading] = useState(false);
-  const [csharpCode, setCsharpCode] = useState<string>('');
+  const [csharpCode, setCsharpCode] = useState<string>("");
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || window.location.origin;
 
   const fetchCodeExample = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/excel/code-example`);
+      const response = await axios.get(
+        `${API_BASE_URL}/api/excel/code-example`
+      );
       setCsharpCode(response.data);
     } catch (error) {
-      console.error('Error fetching code example:', error);
-      message.error('Failed to fetch C# code example');
+      console.error("Error fetching code example:", error);
+      message.error("Failed to fetch C# code example");
     }
   };
 
@@ -39,13 +42,13 @@ function App() {
   }, []);
 
   const uploadProps: UploadProps = {
-    name: 'file',
+    name: "file",
     multiple: false,
-    accept: '.xlsx,.xls',
+    accept: ".xlsx,.xls",
     customRequest: async ({ file, onSuccess, onError }) => {
       setLoading(true);
       const formData = new FormData();
-      formData.append('file', file as File);
+      formData.append("file", file as File);
 
       try {
         const response = await axios.post(
@@ -53,62 +56,63 @@ function App() {
           formData,
           {
             headers: {
-              'Content-Type': 'multipart/form-data',
+              "Content-Type": "multipart/form-data",
             },
           }
         );
-        
+
         setParsedData(response.data);
-        message.success('Excel file processed successfully!');
+        message.success("Excel file processed successfully!");
         onSuccess?.(response.data);
       } catch (error) {
-        console.error('Upload error:', error);
-        message.error('Failed to process Excel file');
+        console.error("Upload error:", error);
+        message.error("Failed to process Excel file");
         onError?.(error as Error);
       } finally {
         setLoading(false);
       }
     },
     onDrop(e) {
-      console.log('Dropped files', e.dataTransfer.files);
+      console.log("Dropped files", e.dataTransfer.files);
     },
   };
 
   const columns = [
     {
-      title: 'Original Value',
-      dataIndex: 'originalValue',
-      key: 'originalValue',
+      title: "Original Value",
+      dataIndex: "originalValue",
+      key: "originalValue",
       width: 150,
     },
     {
-      title: 'Parsed Date',
-      dataIndex: 'parsedDate',
-      key: 'parsedDate',
+      title: "Parsed Date",
+      dataIndex: "parsedDate",
+      key: "parsedDate",
       width: 150,
-      render: (date: string | null) => date ? new Date(date).toLocaleDateString() : 'N/A',
+      render: (date: string | null) =>
+        date ? new Date(date).toLocaleDateString() : "N/A",
     },
     {
-      title: 'Date Format',
-      dataIndex: 'dateFormat',
-      key: 'dateFormat',
+      title: "Date Format",
+      dataIndex: "dateFormat",
+      key: "dateFormat",
       width: 150,
     },
     {
-      title: 'Status',
-      dataIndex: 'isSuccessfullyParsed',
-      key: 'status',
+      title: "Status",
+      dataIndex: "isSuccessfullyParsed",
+      key: "status",
       width: 100,
       render: (success: boolean) => (
-        <span className={success ? 'text-green-600' : 'text-red-600'}>
-          {success ? 'Success' : 'Failed'}
+        <span className={success ? "text-green-600" : "text-red-600"}>
+          {success ? "Success" : "Failed"}
         </span>
       ),
     },
     {
-      title: 'Error Message',
-      dataIndex: 'errorMessage',
-      key: 'errorMessage',
+      title: "Error Message",
+      dataIndex: "errorMessage",
+      key: "errorMessage",
       width: 200,
     },
   ];
@@ -119,7 +123,7 @@ function App() {
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
           Excel Date Format Importer Demo
         </h1>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Upload Section */}
           <Card title="Upload Excel File" className="shadow-lg">
@@ -127,12 +131,15 @@ function App() {
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />
               </p>
-              <p className="ant-upload-text">Click or drag Excel file to this area to upload</p>
+              <p className="ant-upload-text">
+                Click or drag Excel file to this area to upload
+              </p>
               <p className="ant-upload-hint">
-                Support for .xlsx and .xls files. The system will parse various date formats.
+                Support for .xlsx and .xls files. The system will parse various
+                date formats.
               </p>
             </Dragger>
-            
+
             {parsedData.length > 0 && (
               <div className="mt-6">
                 <h3 className="text-lg font-semibold mb-3">Parsed Results</h3>
@@ -151,14 +158,11 @@ function App() {
           {/* Code Example Section */}
           <Card title="C# Code Example" className="shadow-lg">
             <p className="mb-4 text-gray-600">
-              This C# code demonstrates how to handle various Excel date formats including 
-              serial dates, DateTime objects, and text dates in multiple formats.
+              This C# code demonstrates how to handle various Excel date formats
+              including serial dates, DateTime objects, and text dates in
+              multiple formats.
             </p>
-            <Button 
-              onClick={fetchCodeExample} 
-              className="mb-4"
-              type="primary"
-            >
+            <Button onClick={fetchCodeExample} className="mb-4" type="primary">
               Refresh Code Example
             </Button>
             <div className="border rounded-lg overflow-hidden">
@@ -179,7 +183,7 @@ function App() {
         </div>
 
         <Divider />
-        
+
         <Card title="Supported Date Formats" className="shadow-lg">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
