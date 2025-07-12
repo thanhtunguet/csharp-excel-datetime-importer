@@ -22,9 +22,11 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [csharpCode, setCsharpCode] = useState<string>('');
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
   const fetchCodeExample = async () => {
     try {
-      const response = await axios.get('https://localhost:7065/api/excel/code-example');
+      const response = await axios.get(`${API_BASE_URL}/api/excel/code-example`);
       setCsharpCode(response.data);
     } catch (error) {
       console.error('Error fetching code example:', error);
@@ -47,7 +49,7 @@ function App() {
 
       try {
         const response = await axios.post(
-          'https://localhost:7065/api/excel/upload',
+          `${API_BASE_URL}/api/excel/upload`,
           formData,
           {
             headers: {
