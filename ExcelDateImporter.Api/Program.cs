@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 
 // Set EPPlus license for version 8+
-ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+ExcelPackage.License = LicenseContext.NonCommercial;
 
 var builder = WebApplication.CreateBuilder(args);
 
