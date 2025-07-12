@@ -28,7 +28,7 @@ namespace ExcelDateImporter.Api.Services
             using var stream = new MemoryStream();
             await file.CopyToAsync(stream);
             
-            ExcelPackage.License = LicenseContext.NonCommercial;
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             
             using var package = new ExcelPackage(stream);
             var worksheet = package.Workbook.Worksheets[0];
