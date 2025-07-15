@@ -162,7 +162,7 @@ function App() {
               including serial dates, DateTime objects, and text dates in
               multiple formats.
             </p>
-            <Button onClick={fetchCodeExample} className="mb-4" type="primary">
+            <Button onClick={fetchCodeExample} className="my-4" type="primary">
               Refresh Code Example
             </Button>
             <div className="border rounded-lg overflow-hidden">
